@@ -6,6 +6,7 @@ import router from './router'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import api from './api/index'
+import 'default-passive-events'
 //路由拦截
 import "./router/permit"
 //配置成员变量文件夹

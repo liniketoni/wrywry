@@ -40,7 +40,7 @@
   </div>
 </template>
 <script>
-import store_1 from "../store/state"
+import store from "../store/state"
 export default {
   
   name: "Login",
@@ -51,12 +51,10 @@ export default {
       rules: {
         user_id: [{ required: true, message: "请输入账号", trigger: "blur" }],
         password: [{ required: true, message: "请输入密码", trigger: "blur" }],
-        // code: [{ required: true, message: "请输入验证码", trigger: "blur" }],
       },
       loginForm: {
         user_id: "985355343",
         password: "123",
-        // code: "",
       },
     };
   },
@@ -70,7 +68,7 @@ export default {
       this.$refs.loginForm.validate((valid) => {
         if (valid) {
           this.$api.user.SelectUser(this.loginForm).then((res) => {
-            console.log(res);
+            console.log(res.data);
             if (res.data.code == 0) {
               // alert(res.data.msg);
               this.$message({
@@ -79,11 +77,11 @@ export default {
                 type: "error",
               });
             } else {
-              store_1.NOTLOGIN= res.data.code
-              console.log(store_1.NOTLOGIN)
+              store.Userinfo = res.data.data
+              store.NOTLOGIN = res.data.code
+              console.log(store.NOTLOGIN)
               this.$router.push({
                 name: "Home",
-                // params: { id: res.data.data.user_id },
               });
             }
           });

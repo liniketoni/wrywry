@@ -16,5 +16,15 @@ export function SelectUser(data) {
         url: '/user/login',
         data
     })
+    
+
+}
+export function UpUser(data) {
+    return request({
+        method: 'POST',
+        url: '/user/UpUser',
+        data
+    })
+    
 
 }

@@ -6,7 +6,7 @@
       @click="submitLogin"
     >login</el-button> -->
     <router-view/>
-  </div>
+  <!-- </div> -->
 </template>
 
 <script>
