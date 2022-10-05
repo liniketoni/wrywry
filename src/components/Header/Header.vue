@@ -143,32 +143,54 @@ export default {
     },
     submitUpload() {
       let rd = new FileReader(); // 创建文件读取对象
-      let j=this.fileList.length-1
-      console.log(this.fileList.length)
-      let file = this.fileList[j].raw;
-      rd.readAsDataURL(file); // 文件读取装换为base64类型
-      rd.onload = () => {
-        console.log(rd.result);
-        // this.imageBase64 = rd.result;
+      let j = this.fileList.length;
+      if (this.fileList.length > 0) {
+        j = this.fileList.length - 1;
+      }
+      //判断fileList是否存在文件，是ifspack不为空
+      let ifspack = [];
+      ifspack.push(this.fileList[j])
+      console.log(ifspack);
+      if (ifspack == "") {
+        //没有改变头像时修改账号信息的方方式
         store.Userinfo = {
-          user_Avatar: rd.result,
+          user_Avatar: this.imageUrl,
           admin_root: this.admin_root,
           user_no: this.user_no,
           user_phone: this.user_phone,
           user_status: this.user_status,
-          user_name: this.user_name,
+          user_name: this.upuser_name,
           user_id: this.user_id,
         };
         this.$api.user.UpUser(store.Userinfo);
         this.user_name = this.upuser_name;
         console.log(store.Userinfo);
-      };
-      rd.onerror = function (error) {
-        console.log("Error: ", error);
-      };
+      } else {
+        //更改头像上传方式
+        let file = this.fileList[j].raw;
+        rd.readAsDataURL(file); // 文件读取装换为base64类型
+        rd.onload = () => {
+          console.log(rd.result);
+          // this.imageBase64 = rd.result;
+          store.Userinfo = {
+            user_Avatar: rd.result,
+            admin_root: this.admin_root,
+            user_no: this.user_no,
+            user_phone: this.user_phone,
+            user_status: this.user_status,
+            user_name: this.upuser_name,
+            user_id: this.user_id,
+          };
+          this.$api.user.UpUser(store.Userinfo);
+          this.user_name = this.upuser_name;
+          console.log(store.Userinfo);
+        };
+        rd.onerror = function (error) {
+          console.log("Error: ", error);
+        };
+      }
       this.dialogTableVisible = false;
     },
-
   },
 };
 </script>
