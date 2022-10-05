@@ -16,9 +16,10 @@
         action="#"
         ref="upload"
         :show-file-list="false"
-        :http-request="httpRequest"
+        :destroy-on-close="true"
         :on-change="changePictureUpload"
         :auto-upload="false"
+        :file-list="fileList"
       >
         <img :src="imageUrl" class="avatar" />
       </el-upload>
@@ -30,7 +31,7 @@
             用户名
           </template>
           <el-input
-            v-model="user_name"
+            v-model="upuser_name"
             style="width: 110px; border: 0"
           ></el-input>
         </el-descriptions-item>
@@ -82,14 +83,16 @@ export default {
         "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png",
       dialogTableVisible: false,
       imageUrl: "",
-
+      imagefilename: "",
       imageBase64: "",
       admin_root: "",
       user_no: "01",
       user_phone: "",
       user_status: "",
       user_name: "",
+      upuser_name: "",
       user_id: "",
+      fileList: [],
     };
   },
   created() {
@@ -98,11 +101,33 @@ export default {
     this.user_phone = store.Userinfo.user_phone;
     this.user_status = store.Userinfo.user_status;
     this.user_name = store.Userinfo.user_name;
+    this.upuser_name = store.Userinfo.user_name;
     this.admin_root = store.Userinfo.admin_root;
     this.user_id = store.Userinfo.user_id;
   },
   //qrBase64是后台传回来的base64数据
   methods: {
+    changePictureUpload(file, filelist) {
+      console.log(URL.createObjectURL(file.raw));
+      //去除_ob_
+      filelist = JSON.parse(JSON.stringify(filelist));
+      if (filelist.length > 1) {
+        filelist.splice(0, 1);
+      }
+      console.log(file, filelist);
+      this.fileList.push(file);
+      console.log(this.fileList);
+      const isJPG = file.raw.type === "image/jpeg";
+      if (!isJPG) {
+        this.$message.error("上传头像图片只能是 JPG 格式!");
+        return;
+      }
+      this.imageUrl = URL.createObjectURL(file.raw);
+      this.imagefilename = file.name;
+      // if (!isLt2M) {
+      //   this.$message.error("上传头像图片大小不能超过 2MB!");
+      // }
+    },
     handleDownloadQrIMg(qrBase64) {
       const imgUrl = `data:image/jpeg;base64,${qrBase64}`;
       console.log(imgUrl);
@@ -115,56 +140,12 @@ export default {
       //   while (n--) {
       //     u8arr[n] = bstr.charCodeAt(n)
       //   }
-      //   const blob = new Blob([u8arr])
-      //   window.navigator.msSaveOrOpenBlob(blob, 'chart-download' + '.' + 'png')
-      // } else {
-      // 这里就按照chrome等新版浏览器来处理
-      //   const a = document.createElement('a')
-      //   a.href = imgUrl
-      //   a.setAttribute('download', 'chart-download')
-      //   a.click()
-      // }
-    },
-    changePictureUpload(file, fileList) {
-      console.log(file.raw, fileList);
-      this.imageUrl = URL.createObjectURL(file.raw);
-      const isJPG = file.raw.type === "image/jpeg";
-      const isLt2M = file.size / 1024 / 1024 < 2;
-      console.log(this.imageUrl, file.type, file.size, isJPG, isLt2M);
-      if (!isJPG) {
-        this.$message.error("上传头像图片只能是 JPG 格式!");
-      }
-      if (!isLt2M) {
-        this.$message.error("上传头像图片大小不能超过 2MB!");
-      }
-      // this.$refs.upload.clearFiles();
-      return isJPG && isLt2M;
     },
     submitUpload() {
-      store.Userinfo = {
-        user_Avatar: store.Userinfo.user_Avatar,
-        admin_root: this.admin_root,
-        user_no: this.user_no,
-        user_phone: this.user_phone,
-        user_status: this.user_status,
-        user_name: this.user_name,
-        user_id: this.user_id,
-      };
-      this.$api.user.UpUser(store.Userinfo).then((res) => {
-        console.log(res.data);
-      });
-      console.log(store.Userinfo);
-
-      this.$refs.upload.submit();
-    },
-    httpRequest(data) {
-      var i = 1;
-      i++;
       let rd = new FileReader(); // 创建文件读取对象
-
-      let file = data.file;
-      console.log(data);
-      console.log(file, i);
+      let j=this.fileList.length-1
+      console.log(this.fileList.length)
+      let file = this.fileList[j].raw;
       rd.readAsDataURL(file); // 文件读取装换为base64类型
       rd.onload = () => {
         console.log(rd.result);
@@ -178,18 +159,16 @@ export default {
           user_name: this.user_name,
           user_id: this.user_id,
         };
-        this.$api.user.UpUser(store.Userinfo).then((res) => {
-          console.log(res.data);
-        });
+        this.$api.user.UpUser(store.Userinfo);
+        this.user_name = this.upuser_name;
         console.log(store.Userinfo);
       };
       rd.onerror = function (error) {
         console.log("Error: ", error);
       };
-      //防止多次上传
-      file = null;
-      this.$refs.upload.clearFiles();
+      this.dialogTableVisible = false;
     },
+
   },
 };
 </script>

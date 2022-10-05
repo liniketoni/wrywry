@@ -9,6 +9,8 @@ export default {
     user_status: "",
     user_name: "",
     user_id: "",
+    u_update:"",
+    u_createdate:""
   }
 };
 // const state={
